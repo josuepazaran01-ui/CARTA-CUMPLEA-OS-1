@@ -1,0 +1,12 @@
+{
+  "name": "carta-cumpleanos",
+  "version": "1.0.0",
+  "description": "Servidor simple para la carta de cumpleaños y el carrusel de fotos.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=14"
+  }
+}
