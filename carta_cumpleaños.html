@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carta de Cumpleaños para Mi Amor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Arial', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .container {
+            position: relative;
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Corazones animados de fondo */
+        .heart-background {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .floating-heart {
+            position: absolute;
+            font-size: 2rem;
+            opacity: 0.6;
+            animation: float 6s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0;
+            }
+            50% {
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateY(-100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Carrusel de fotos */
+        .carousel-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 1s ease;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .carousel-container.visible {
+            opacity: 1;
+            z-index: 5;
+            pointer-events: auto;
+        }
+
+        .carousel {
+            position: relative;
+            width: 90%;
+            max-width: 600px;
+            height: 80%;
+            max-height: 600px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .carousel-slide {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 1s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .carousel-slide.active {
+            opacity: 1;
+        }
+
+        .carousel-image {
+            width: 100%;
+            height: 100%;
+            background-color: #111;
+            background-size: contain;
+            background-position: center center;
+            background-repeat: no-repeat;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .carousel-image::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(0,0,0,0.05), rgba(0,0,0,0.25));
+            opacity: 0.15;
+        }
+
+        .carousel-image.empty {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255,255,255,0.85);
+            font-size: 24px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #ff6b9d, #ff9a3d);
+        }
+
+        .carousel-phrase {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            text-align: center;
+            padding: 20px;
+            border-radius: 0 0 20px 20px;
+            font-size: 20px;
+            font-weight: bold;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .carousel-phrase.visible {
+            opacity: 1;
+            animation: fadeInPhrase 0.8s ease forwards;
+        }
+
+        @keyframes fadeInPhrase {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .carousel-nav {
+            position: absolute;
+            bottom: -80px;
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+        }
+
+        .carousel-nav button {
+            background: rgba(255, 255, 255, 0.8);
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .carousel-nav button:hover {
+            background: white;
+            transform: scale(1.1);
+        }
+
+        .carousel-counter {
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .carousel-dots {
+            position: absolute;
+            bottom: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .dot.active {
+            background: white;
+            transform: scale(1.3);
+        }
+
+        .skip-carousel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            z-index: 20;
+        }
+
+        .skip-carousel:hover {
+            background: white;
+        }
+
+        .view-photos {
+            margin-top: 20px;
+            background: #ff6b9d;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: transform 0.3s ease, filter 0.3s ease;
+        }
+
+        .view-photos:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.05);
+        }
+
+        .back-to-letter {
+            position: absolute;
+            bottom: 140px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #ff1744;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .back-to-letter:hover {
+            background: white;
+            transform: translateY(-2px);
+        }
+
+        /* Envelope */
+        .envelope {
+            position: fixed;
+            width: 55%;
+            max-width: 520px;
+            height: 58vh;
+            max-height: 420px;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+            transition: transform 0.6s ease, opacity 0.6s ease;
+            z-index: 15;
+            animation: envelopeFloat 5s ease-in-out infinite;
+            transform-style: preserve-3d;
+            perspective: 1000px;
+        }
+
+        .envelope.hidden {
+            opacity: 0;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .envelope.open {
+            pointer-events: none;
+            animation: none;
+        }
+
+        .envelope.open .envelope-body {
+            transform: translateY(-20px) scale(0.98);
+            opacity: 0;
+            z-index: 0;
+        }
+
+        .envelope.open .envelope-flap {
+            transform: translateY(-220%) scaleY(0.5);
+            opacity: 0;
+            z-index: -1;
+        }
+
+        .envelope.open .seal {
+            transform: translateY(-30px) scale(0.5);
+            opacity: 0;
+            z-index: -1;
+        }
+
+        .envelope.open .envelope-content {
+            opacity: 1;
+            z-index: 5;
+        }
+
+        .envelope.open .letter {
+            z-index: 100;
+        }
+
+        @keyframes envelopeFloat {
+            0%, 100% {
+                transform: translate(-50%, -50%) translateY(0) scale(1);
+            }
+            50% {
+                transform: translate(-50%, -50%) translateY(-10px) scale(1.02);
+            }
+        }
+
+        .envelope-body {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #ff6b9d 0%, #ff9a3d 100%);
+            border-radius: 18px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+            border: 2px solid rgba(255, 23, 68, 0.8);
+            z-index: 1;
+            overflow: hidden;
+            transition: transform 0.6s ease, opacity 0.6s ease;
+        }
+
+        .envelope-flap {
+            position: absolute;
+            width: 100%;
+            height: 36%;
+            top: -24%;
+            left: 0;
+            background: linear-gradient(135deg, rgba(255, 107, 157, 0.95), rgba(255, 158, 181, 0.95));
+            clip-path: polygon(0% 100%, 50% 0%, 100% 100%);
+            transition: all 0.6s ease;
+            transform-origin: center bottom;
+            z-index: 3;
+        }
+
+        .envelope.open .envelope-flap {
+            transform: translateY(-220%) scaleY(0.5);
+            opacity: 0;
+            z-index: -1;
+        }
+
+        .envelope-content {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 0.6s ease 0.3s;
+            z-index: 0;
+        }
+
+        .envelope.open .envelope-content {
+            opacity: 1;
+        }
+
+        .letter {
+            position: absolute;
+            width: 96%;
+            max-width: 980px;
+            height: 90vh;
+            max-height: 760px;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%) scale(1);
+            background: linear-gradient(135deg, #fff5f7 0%, #fffacd 100%);
+            border-radius: 28px;
+            padding: 32px;
+            box-shadow: inset 0 0 30px rgba(255, 255, 255, 0.5), 0 25px 80px rgba(0, 0, 0, 0.25);
+            overflow-y: auto;
+            opacity: 0;
+            transition: opacity 0.6s ease, transform 0.6s ease;
+            font-size: 16px;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .envelope.open .letter {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+            z-index: 50;
+            pointer-events: auto;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .letter h1 {
+            color: #ff1744;
+            font-size: 36px;
+            margin-bottom: 20px;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(255, 23, 68, 0.1);
+        }
+
+        .letter p {
+            color: #333;
+            font-size: 18px;
+            line-height: 2;
+            margin-bottom: 20px;
+            text-align: justify;
+            font-weight: 500;
+        }
+
+        .letter .signature {
+            margin-top: 20px;
+            text-align: right;
+            font-style: italic;
+            color: #ff6b9d;
+            font-size: 16px;
+        }
+
+        .heart-decoration {
+            display: inline-block;
+            color: #ff1744;
+            margin: 0 3px;
+            animation: heartbeat 1.2s infinite;
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+        }
+
+        .instruction {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 14px;
+            text-align: center;
+            animation: blink 2s infinite;
+            pointer-events: none;
+        }
+
+        @keyframes blink {
+            0%, 50%, 100% { opacity: 1; }
+            25%, 75% { opacity: 0.5; }
+        }
+
+        .seal {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle at 30% 30%, #ffb74d, #ff7043);
+            border-radius: 50%;
+            bottom: 20px;
+            right: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .envelope.open .seal {
+            opacity: 0;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            body,
+            .container {
+                min-height: 100vh;
+                height: auto;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                overflow-x: hidden;
+                position: relative;
+            }
+
+            .envelope {
+                position: fixed;
+                width: 90%;
+                height: 68vh;
+                max-width: 100%;
+                max-height: 520px;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+            }
+
+            .envelope-flap {
+                width: 100%;
+                height: 32%;
+                top: -24%;
+                left: 0;
+                background: linear-gradient(135deg, rgba(255, 107, 157, 0.95), rgba(255, 158, 181, 0.95));
+                clip-path: polygon(0% 100%, 50% 0%, 100% 100%);
+            }
+
+            .letter {
+                width: 96%;
+                max-width: 96%;
+                height: 78vh;
+                max-height: 620px;
+                padding: 20px;
+                font-size: 15px;
+                line-height: 1.7;
+                transform: translate(-50%, -50%) scale(1);
+            }
+
+            .letter h1 {
+                font-size: 24px;
+            }
+
+            .carousel {
+                height: 55%;
+                max-height: 360px;
+            }
+
+            .carousel-nav {
+                bottom: -70px;
+            }
+
+            .carousel-image {
+                border-radius: 15px;
+            }
+
+            .back-to-letter {
+                bottom: 120px;
+                right: 10px;
+                padding: 10px 16px;
+                font-size: 13px;
+            }
+
+            .view-photos {
+                padding: 10px 20px;
+                font-size: 15px;
+            }
+
+            .skip-carousel {
+                top: 14px;
+                right: 14px;
+                padding: 8px 16px;
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="heart-background" id="heartBg"></div>
+
+        <!-- Botón para saltar carrusel -->
+        <button class="skip-carousel" id="skipCarousel">Ir a la carta →</button>
+
+        <!-- Carrusel de fotos -->
+        <div class="carousel-container" id="carouselContainer">
+            <div class="carousel" id="carousel">
+                <div class="carousel-slide active">
+                    <div class="carousel-image empty" data-index="0">Foto 1</div>
+                    <div class="carousel-phrase">Te amo mucho, linda. Espero que duremos muchos años.</div>
+                </div>
+                
+                <div class="carousel-slide">
+                    <div class="carousel-image empty" data-index="1">Foto 2</div>
+                    <div class="carousel-phrase">¿Te casarías conmigo?</div>
+                </div>
+
+                <div class="carousel-slide">
+                    <div class="carousel-image empty" data-index="2">Foto 3</div>
+                    <div class="carousel-phrase">Siempre juntos, cada día contigo es un regalo.</div>
+                </div>
+            </div>
+
+            <div class="carousel-dots" id="carouselDots"></div>
+            <div class="carousel-nav">
+                <button id="prevBtn">❮</button>
+                <span class="carousel-counter"><span id="currentSlide">1</span> / <span id="totalSlides">3</span></span>
+                <button id="nextBtn">❯</button>
+            </div>
+            <button class="back-to-letter" id="backToLetter">← Carta</button>
+        </div>
+
+        <!-- Sobre con carta -->
+        <div class="envelope" id="envelope">
+            <div class="envelope-flap"></div>
+            <div class="envelope-body"></div>
+            
+            <div class="seal">💌</div>
+
+            <div class="envelope-content">
+                <div class="letter">
+                    <h1>🎂 ¡FELIZ CUMPLEAÑOS! 🎂</h1>
+                    
+                    <p>Mi amor,</p>
+
+                    <p>Hoy es un día especial porque es el día que llegó al mundo la persona más hermosa, especial y maravillosa que he conocido. Hoy celebramos tu vida, tu existencia, y yo no podía dejar pasar esta oportunidad sin decirte lo mucho que significas para mí.</p>
+
+                    <p>Han sido solo tres meses desde que eres mi novia, pero te juro que siento como si te hubiera conocido de toda la vida. En estos meses que hemos compartido, cada momento contigo se ha convertido en un tesoro invaluable. Tu sonrisa es lo primero que quiero ver cuando despierto, y tu ausencia es lo último que siento antes de dormir.</p>
+
+                    <p>Me enamoré de tu forma de ser, de tu corazón puro, de tu risa contagiosa, de la manera en que me miras, de como haces que cada día ordinario se convierta en algo extraordinario. Te amo por quien eres, por tus sueños, por tus miedos que compartes conmigo, por tu fuerza y tu vulnerabilidad.</p>
+
+                    <p>En estos tres meses has llenado mi vida de colores que no sabía que existían. Cada beso tuyo es una promesa, cada abrazo es un refugio, cada palabra tuya es música para mis oídos. No sé qué hice para merecerte, pero agradezco al universo cada día por haberte cruzado en mi camino.</p>
+
+                    <p>Quiero que sepas que a partir de hoy, dedicaré cada día de mi vida a hacerte feliz, a proteger tu corazón como el tesoro que es, a estar en los buenos y malos momentos, a apoyar tus sueños y a amarte como mereces ser amada.</p>
+
+                    <p>En tu cumpleaños, te deseo toda la felicidad del mundo, que todos tus sueños se cumplan, que la vida te sorprenda con bendiciones cada día, y que en muchos cumpleaños más pueda estar aquí, a tu lado, celebrando tu vida.</p>
+
+                    <p>Te amo más de lo que las palabras pueden expresar. Eres mi presente y espero ser tu futuro.</p>
+
+                    <p class="signature">
+                        Eternamente tuyo,<br>
+                        <span class="heart-decoration">❤️</span> Tu amor <span class="heart-decoration">❤️</span>
+                    </p>
+                    <button class="view-photos" id="viewPhotos">Ver fotos</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="instruction">
+            📧 Haz clic en el sobre para abrirlo 📧
+        </div>
+    </div>
+
+    <script>
+        // ====== FOTOS LOCALES YA DISPONIBLES ======
+        // Se usan las imágenes que ya están en c:\tmp junto a este archivo.
+        const photoUrls = [
+            'foto 1.jpg',
+            'foto 2.jpg',
+            'foto 3.jpg',
+        ];
+
+        const envelope = document.getElementById('envelope');
+        const heartBg = document.getElementById('heartBg');
+        const carouselContainer = document.getElementById('carouselContainer');
+        const carousel = document.getElementById('carousel');
+        const carouselDots = document.getElementById('carouselDots');
+        const totalSlides = carousel.querySelectorAll('.carousel-slide').length;
+        let currentSlide = 0;
+
+        // Cargar las imágenes en el carrusel
+        function loadCarouselImages() {
+            const imageSlides = carousel.querySelectorAll('.carousel-image');
+            imageSlides.forEach((slide, index) => {
+                const url = photoUrls[index];
+                if (url) {
+                    slide.style.backgroundImage = `url("${encodeURI(url)}")`;
+                    slide.classList.remove('empty');
+                    slide.textContent = '';
+                }
+            });
+        }
+
+        loadCarouselImages();
+
+        // Inicializar puntos del carrusel
+        function initCarouselDots() {
+            for (let i = 0; i < totalSlides; i++) {
+                const dot = document.createElement('div');
+                dot.className = `dot ${i === 0 ? 'active' : ''}`;
+                dot.addEventListener('click', () => goToSlide(i));
+                carouselDots.appendChild(dot);
+            }
+            document.getElementById('totalSlides').textContent = totalSlides;
+        }
+
+        // Mostrar slide específico
+        function goToSlide(n) {
+            currentSlide = n;
+            const slides = carousel.querySelectorAll('.carousel-slide');
+            const dots = carouselDots.querySelectorAll('.dot');
+            const phrases = carousel.querySelectorAll('.carousel-phrase');
+
+            slides.forEach((slide, index) => {
+                const phrase = slide.querySelector('.carousel-phrase');
+                slide.classList.remove('active');
+                phrase.classList.remove('visible');
+                if (index === currentSlide) {
+                    slide.classList.add('active');
+                    void phrase.offsetWidth;
+                    phrase.classList.add('visible');
+                }
+            });
+
+            dots.forEach(dot => dot.classList.remove('active'));
+            dots[currentSlide].classList.add('active');
+            document.getElementById('currentSlide').textContent = currentSlide + 1;
+        }
+
+        // Siguiente slide
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % totalSlides;
+            goToSlide(currentSlide);
+        }
+
+        // Slide anterior
+        function prevSlide() {
+            currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+            goToSlide(currentSlide);
+        }
+
+        // Event listeners para botones
+        document.getElementById('nextBtn').addEventListener('click', () => {
+            nextSlide();
+            resetAutoSlide();
+        });
+        document.getElementById('prevBtn').addEventListener('click', () => {
+            prevSlide();
+            resetAutoSlide();
+        });
+        document.getElementById('skipCarousel').addEventListener('click', openLetter);
+        document.getElementById('viewPhotos').addEventListener('click', () => {
+            envelope.classList.add('hidden');
+            carouselContainer.classList.add('visible');
+            clearInterval(autoSlideInterval);
+            autoSlideInterval = setInterval(nextSlide, 9000);
+        });
+        document.getElementById('backToLetter').addEventListener('click', openLetter);
+
+        // Auto-avanzar carrusel cada 9 segundos
+        let autoSlideInterval = setInterval(nextSlide, 9000);
+
+        function resetAutoSlide() {
+            clearInterval(autoSlideInterval);
+            autoSlideInterval = setInterval(nextSlide, 9000);
+        }
+
+        function openLetter() {
+            envelope.classList.remove('hidden');
+            envelope.classList.add('open');
+            carouselContainer.classList.remove('visible');
+            clearInterval(autoSlideInterval);
+        }
+
+        // Mostrar carrusel
+        function skipToLetter() {
+            envelope.classList.add('hidden');
+            carouselContainer.classList.add('visible');
+            clearInterval(autoSlideInterval);
+            autoSlideInterval = setInterval(nextSlide, 9000);
+        }
+
+        // Generar corazones flotantes de fondo
+        function createFloatingHearts() {
+            const hearts = ['❤️', '💕', '💖', '💗', '💝'];
+            for (let i = 0; i < 20; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'floating-heart';
+                heart.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+                heart.style.left = Math.random() * 100 + '%';
+                heart.style.bottom = '-50px';
+                heart.style.animationDelay = Math.random() * 6 + 's';
+                heart.style.animationDuration = (5 + Math.random() * 4) + 's';
+                heartBg.appendChild(heart);
+
+                // Recrear corazones cuando terminen
+                heart.addEventListener('animationend', () => {
+                    heart.remove();
+                    setTimeout(createFloatingHearts, 0);
+                });
+            }
+        }
+
+        createFloatingHearts();
+        initCarouselDots();
+        goToSlide(0);
+
+        // Abrir sobre al hacer clic
+        envelope.addEventListener('click', () => {
+            envelope.classList.add('open');
+            createHeartExplosion();
+        });
+
+        // Explosión de corazones
+        function createHeartExplosion() {
+            const hearts = ['❤️', '💕', '💖', '💗', '💝'];
+            for (let i = 0; i < 15; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'floating-heart';
+                heart.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+                heart.style.left = '50%';
+                heart.style.bottom = '50%';
+                heart.style.fontSize = '1.5rem';
+                
+                const angle = (Math.PI * 2 * i) / 15;
+                const distance = 150;
+                const endX = Math.cos(angle) * distance;
+                const endY = Math.sin(angle) * distance;
+                
+                heart.style.animation = `explode 0.8s ease-out forwards`;
+                heart.style.setProperty('--endX', endX + 'px');
+                heart.style.setProperty('--endY', endY + 'px');
+                
+                heartBg.appendChild(heart);
+                setTimeout(() => heart.remove(), 800);
+            }
+        }
+
+        // Agregar animación de explosión al CSS dinámicamente
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes explode {
+                0% {
+                    transform: translate(-50%, 0) scale(1);
+                    opacity: 1;
+                }
+                100% {
+                    transform: translate(calc(-50% + var(--endX)), var(--endY)) scale(0);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
